@@ -79,6 +79,22 @@ mod test {
     }
 
     #[test]
+    fn list_is_parsed_correctly_without_flag() {
+        assert_eq!(
+            DumpBufferCLI::from_iter(&["test", "list"]),
+            DumpBufferCLI::List { keys_only: false }
+        );
+    }
+    
+    #[test]
+    fn list_is_parsed_correctly_with_flag() {
+        assert_eq!(
+            DumpBufferCLI::from_iter(&["test", "list", "--keys-only"]),
+            DumpBufferCLI::List { keys_only: true }
+        );
+    }
+
+    #[test]
     fn joined_value_works_correctly() {
         let v = DumpBufferCLI::from_iter(&["test", "add", "key", "bash", "-c", "hey"]);
         assert_eq!(v.joined_value(" "), Some("bash -c hey".to_string()));
