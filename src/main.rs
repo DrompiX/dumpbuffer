@@ -1,6 +1,6 @@
-mod ui;
+mod record;
 
-use crate::ui::cli;
+use crate::record::infrastructure::cli;
 use structopt::StructOpt;
 
 fn main() {
