@@ -62,13 +62,13 @@ impl<'a> ListRecordsService<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::record::infrastructure::repositories::InMemoryRepository;
+    use crate::record::infrastructure::repositories::InMemoryRecordRepository;
 
     use super::*;
 
     #[test]
     fn add_new_record_adds_record() {
-        let record_repository: InMemoryRepository = InMemoryRepository::new();
+        let record_repository: InMemoryRecordRepository = InMemoryRecordRepository::new();
         let query = AddNewRecordQuery::new("test_key".to_string(), "test_val".to_string());
         let service = AddNewRecordService::new(&record_repository);
         service.run(&query);

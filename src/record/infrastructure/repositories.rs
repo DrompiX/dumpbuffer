@@ -4,22 +4,24 @@ use std::collections::HashMap;
 use crate::record::domain::entities::Record;
 use crate::record::domain::repositories::RecordRepository;
 
-pub struct InMemoryRepository {
+/// Repository to store records in memory. Primary use case - testing
+pub struct InMemoryRecordRepository {
+    /// HashMap-based key-value storage for records
     storage: RefCell<HashMap<String, String>>,
 }
 
-impl InMemoryRepository {
-    pub fn new() -> InMemoryRepository {
+impl InMemoryRecordRepository {
+    pub fn new() -> InMemoryRecordRepository {
         let mut hm = HashMap::new();
         hm.insert("hello".to_string(), "world".to_string());
         hm.insert("hey".to_string(), "how are you doing? ˚∆∆˚".to_string());
-        InMemoryRepository {
+        InMemoryRecordRepository {
             storage: RefCell::new(hm),
         }
     }
 }
 
-impl RecordRepository for InMemoryRepository {
+impl RecordRepository for InMemoryRecordRepository {
     fn add(&self, record: Record) {
         self.storage.borrow_mut().insert(record.key.to_string(), record.value.to_string());
     }

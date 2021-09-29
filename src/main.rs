@@ -7,11 +7,11 @@ use crate::record::application::{
     queries::{AddNewRecordQuery, GetRecordQuery, ListRecordsQuery},
     services::{AddNewRecordService, GetRecordService, ListRecordsService, ListResult},
 };
-use crate::record::infrastructure::repositories::InMemoryRepository;
+use crate::record::infrastructure::repositories::InMemoryRecordRepository;
 use crate::shared::infrastructure::cli::DumpBufferCLI;
 
 fn handle(args: &DumpBufferCLI) -> String {
-    let record_repository: InMemoryRepository = InMemoryRepository::new();
+    let record_repository: InMemoryRecordRepository = InMemoryRecordRepository::new();
     match args {
         DumpBufferCLI::Add { key, value: _ } => {
             let joined_value = args.joined_value(" ").unwrap();
