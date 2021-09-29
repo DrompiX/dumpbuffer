@@ -12,10 +12,10 @@ impl<'a> AddNewRecordService<'a> {
         return AddNewRecordService { record_repository };
     }
 
-    pub fn run(&self, query: AddNewRecordQuery) {
+    pub fn run(&self, query: &AddNewRecordQuery) {
         let record = Record {
-            key: query.key,
-            value: query.value,
+            key: query.key.to_string(),
+            value: query.value.to_string(),
         };
         self.record_repository.add(record)
     }
@@ -30,8 +30,8 @@ impl<'a> GetRecordService<'a> {
         return GetRecordService { record_repository };
     }
 
-    pub fn run(&self, query: GetRecordQuery) -> Result<Record, String> {
-        return self.record_repository.get(query.key);
+    pub fn run(&self, query: &GetRecordQuery) -> Result<Record, String> {
+        return self.record_repository.get(query.key.to_string());
     }
 }
 
@@ -49,7 +49,7 @@ impl<'a> ListRecordsService<'a> {
         return ListRecordsService { record_repository };
     }
 
-    pub fn run(&self, query: ListRecordsQuery) -> ListResult {
+    pub fn run(&self, query: &ListRecordsQuery) -> ListResult {
         let all_records = self.record_repository.all();
         if query.keys_only {
             let keys: Vec<String> = all_records.iter().map(|v| v.key.to_string()).collect();
@@ -69,13 +69,12 @@ mod test {
     #[test]
     fn add_new_record_adds_record() {
         let record_repository: InMemoryRepository = InMemoryRepository::new();
-        let (test_key, test_val) = ("test-key", "test-val");
-        let query = AddNewRecordQuery::new(test_key.to_string(), test_val.to_string());
+        let query = AddNewRecordQuery::new("test_key".to_string(), "test_val".to_string());
         let service = AddNewRecordService::new(&record_repository);
-        service.run(query);
+        service.run(&query);
 
-        let expected_record = Record::new(&test_key.to_string(), &test_val.to_string());
-        match record_repository.get(test_key.to_string()) {
+        let expected_record = Record::new(&query.key, &query.value);
+        match record_repository.get(query.key) {
             Ok(record) => assert_eq!(record, expected_record),
             Err(_) => assert!(false),
         }

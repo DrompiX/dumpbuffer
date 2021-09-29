@@ -17,13 +17,13 @@ fn handle(args: &DumpBufferCLI) -> String {
             let joined_value = args.joined_value(" ").unwrap();
             let query = AddNewRecordQuery::new(key.to_string(), joined_value);
             let service = AddNewRecordService::new(&record_repository);
-            service.run(query);
+            service.run(&query);
             format!("Successfully added new value with key {}", key)
         }
         DumpBufferCLI::Get { key } => {
             let query = GetRecordQuery::new(key.to_string());
             let service = GetRecordService::new(&record_repository);
-            match service.run(query) {
+            match service.run(&query) {
                 Ok(record) => record.value.to_string(),
                 Err(e) => e,
             }
@@ -31,7 +31,7 @@ fn handle(args: &DumpBufferCLI) -> String {
         DumpBufferCLI::List { keys_only } => {
             let query = ListRecordsQuery::new(keys_only.clone());
             let service = ListRecordsService::new(&record_repository);
-            match service.run(query) {
+            match service.run(&query) {
                 ListResult::KeyView(keys) => {
                     format!("[\n  {}\n]", keys.join(",\n  "))
                 }
