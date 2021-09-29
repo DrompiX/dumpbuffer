@@ -1,13 +1,19 @@
 use std::fmt::Display;
 
-#[derive(Debug)]
-pub struct Record<'a> {
-    pub key: &'a str,
-    pub value: &'a str,
+#[derive(Debug, PartialEq)]
+pub struct Record {
+    pub key: String,
+    pub value: String,
 }
 
-impl<'a> Display for Record<'a> {
+impl Record {
+    pub fn new(key: &String, value: &String) -> Record {
+        Record { key: key.to_string(), value: value.to_string() }
+    }
+}
+
+impl Display for Record {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{{ key: {}, value: {} }}", self.key, self.value)
+        write!(f, "{{\n  key: {},\n  value: {}\n}}", self.key, self.value)
     }
 }

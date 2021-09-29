@@ -85,7 +85,7 @@ mod test {
             DumpBufferCLI::List { keys_only: false }
         );
     }
-    
+
     #[test]
     fn list_is_parsed_correctly_with_flag() {
         assert_eq!(
@@ -110,7 +110,9 @@ mod test {
 
     #[test]
     fn joined_value_is_none_for_other_commands() {
-        let get_cmd = DumpBufferCLI::Get { key: "any".to_string() };
+        let get_cmd = DumpBufferCLI::Get {
+            key: "any".to_string(),
+        };
         let list_cmd = DumpBufferCLI::List { keys_only: false };
         assert_eq!(get_cmd.joined_value(" "), None);
         assert_eq!(list_cmd.joined_value(" "), None);

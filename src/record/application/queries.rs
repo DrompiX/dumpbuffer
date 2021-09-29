@@ -6,7 +6,7 @@ pub struct AddNewRecordQuery {
 }
 
 impl AddNewRecordQuery {
-    fn new(key: String, value: String) -> AddNewRecordQuery {
+    pub fn new(key: String, value: String) -> AddNewRecordQuery {
         return AddNewRecordQuery { key, value }
     }
 }
@@ -16,7 +16,7 @@ pub struct GetRecordQuery {
 }
 
 impl GetRecordQuery {
-    fn new(key: String) -> GetRecordQuery {
+    pub fn new(key: String) -> GetRecordQuery {
         return  GetRecordQuery { key };
     }
 }
@@ -26,7 +26,7 @@ pub struct ListRecordsQuery {
 }
 
 impl ListRecordsQuery {
-    fn new(keys_only: bool) -> ListRecordsQuery {
+    pub fn new(keys_only: bool) -> ListRecordsQuery {
         return ListRecordsQuery { keys_only };
     }
 }
