@@ -17,13 +17,13 @@ pub struct KVFileDatabase {
 }
 
 impl KVFileDatabase {
-    pub fn new(location: &PathBuf) -> Self {
-        let file_content = Self::read_file(&location).unwrap();
-        let parsed_data = Self::parse_content(&file_content).unwrap();
-        KVFileDatabase {
+    pub fn new(location: &PathBuf) -> Result<Self, String> {
+        let file_content = Self::read_file(&location)?;
+        let parsed_data = Self::parse_content(&file_content)?;
+        Ok(KVFileDatabase {
             location: location.clone(),
             data: RefCell::new(parsed_data),
-        }
+        })
     }
 
     pub fn add(&self, key: &String, value: &String) -> Result<(), String> {
@@ -38,8 +38,8 @@ impl KVFileDatabase {
 
     pub fn get(&self, key: &String) -> Result<String, String> {
         match self.data.borrow().get(key) {
-           Some(value) => Ok(value.to_string()),
-           None => Err(format!("Key \"{}\" does not exist", key)),
+            Some(value) => Ok(value.to_string()),
+            None => Err(format!("Key \"{}\" does not exist", key)),
         }
     }
 
@@ -138,12 +138,4 @@ mod test {
         assert!(KVFileDatabase::parse_content(&bad_line_sep).is_err());
         assert!(KVFileDatabase::parse_content(&bad_seps).is_err());
     }
-
-    // #[test]
-    // fn creates_new_file_if_not_exists() {
-    //     let location = PathBuf::from_str("/Users/dima/mylib/Coding/Rust/dumpbuffer/.dumpb").unwrap();
-    //     let kv_db = KVFileDatabase::new(&location);
-    //     println!("Data: {:?}", kv_db.data);
-    //     assert!(false);
-    // }
 }
