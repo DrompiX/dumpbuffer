@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 structopt = { version = "0.3.23" }
 regex = { version = "1.5.4" }
+dirs = { version = "4.0.0" }

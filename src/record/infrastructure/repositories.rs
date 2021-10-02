@@ -25,8 +25,12 @@ impl InMemoryRecordRepository {
 }
 
 impl RecordRepository for InMemoryRecordRepository {
-    fn add(&self, record: Record) {
-        self.storage.borrow_mut().insert(record.key.to_string(), record.value.to_string());
+    fn add(&self, record: Record) -> Result<(), String> {
+        let (key, value) = (record.key.to_string(), record.value.to_string());
+        match self.storage.borrow_mut().insert(key.to_string(), value) {
+            Some(_) => Err(format!("Value for key \"{}\" was updated", key)),
+            None => Ok(())
+        }
     }
 
     fn get(&self, key: String) -> Result<Record, String> {
@@ -36,10 +40,10 @@ impl RecordRepository for InMemoryRecordRepository {
         }
     }
 
-    fn all(&self) -> Vec<Record> {
-        self.storage.borrow().iter()
+    fn all(&self) -> Result<Vec<Record>, String> {
+        Ok(self.storage.borrow().iter()
             .map(|(k, v)| Record::new(k, v))
-            .collect()
+            .collect())
     }
 }
 
@@ -55,15 +59,17 @@ impl<'a> KVFileDatabaseRepository<'a> {
 }
 
 impl<'a> RecordRepository for KVFileDatabaseRepository<'a> {
-    fn add(&self, record: Record) {
-        self.storage.add(&record.key, &record.value).unwrap();
+    fn add(&self, record: Record) -> Result<(), String> {
+        self.storage.add(&record.key, &record.value)
     }
 
     fn get(&self, key: String) -> Result<Record, String> {
-        todo!()
+        self.storage.get(&key).and_then(|v| Ok(Record::new(&key, &v)))
     }
 
-    fn all(&self) -> Vec<Record> {
-        todo!()
+    fn all(&self) -> Result<Vec<Record>, String> {
+        self.storage.items().and_then(|items: Vec<(String, String)>| -> Result<Vec<Record>, String> {
+            Ok(items.iter().map(|(k, v)| Record::new(&k, &v)).collect())
+        })
     }
 }
