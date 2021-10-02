@@ -15,11 +15,8 @@ pub struct InMemoryRecordRepository {
 
 impl InMemoryRecordRepository {
     pub fn new() -> InMemoryRecordRepository {
-        let mut hm = HashMap::new();
-        hm.insert("hello".to_string(), "world".to_string());
-        hm.insert("hey".to_string(), "how are you doing? ˚∆∆˚".to_string());
         InMemoryRecordRepository {
-            storage: RefCell::new(hm),
+            storage: RefCell::new(HashMap::new()),
         }
     }
 }
@@ -48,7 +45,9 @@ impl RecordRepository for InMemoryRecordRepository {
 }
 
 ////////////////////////////////////////////
+/// Repository to store records in file in Key-Value format
 pub struct KVFileDatabaseRepository<'a> {
+    /// Underlying file storage implementation
     storage: &'a KVFileDatabase,
 }
 
@@ -68,7 +67,7 @@ impl<'a> RecordRepository for KVFileDatabaseRepository<'a> {
     }
 
     fn all(&self) -> Result<Vec<Record>, String> {
-        self.storage.items().and_then(|items: Vec<(String, String)>| -> Result<Vec<Record>, String> {
+        self.storage.items().and_then(|items| -> Result<Vec<Record>, String> {
             Ok(items.iter().map(|(k, v)| Record::new(&k, &v)).collect())
         })
     }
