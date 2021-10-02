@@ -29,11 +29,27 @@ impl KVFileDatabase {
     pub fn add(&self, key: &String, value: &String) -> Result<(), String> {
         let mut storage = self.data.borrow_mut();
         if storage.contains_key(key) {
-            Err(format!("Key {} already exists", key))
+            Err(format!("Key \"{}\" already exists", key))
         } else {
             storage.insert(key.to_string(), value.to_string());
             Ok(())
         }
+    }
+
+    pub fn get(&self, key: &String) -> Result<String, String> {
+        match self.data.borrow().get(key) {
+           Some(value) => Ok(value.to_string()),
+           None => Err(format!("Key \"{}\" does not exist", key)),
+        }
+    }
+
+    pub fn items(&self) -> Result<Vec<(String, String)>, String> {
+        Ok(self.data
+            .borrow()
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect()
+        )
     }
 
     fn construct_dump(&self) -> String {
@@ -47,15 +63,14 @@ impl KVFileDatabase {
 
     fn read_file(location: &PathBuf) -> Result<String, String> {
         if location.is_file() {
+            // DB file already exists, reading its content
             Ok(fs::read_to_string(location).unwrap())
         } else if location.exists() {
-            Err("Object specified by path exists, but it is not valid file".to_string())
+            // Location specifies not valid file (maybe it is a directory)
+            Err("Object specified by path exists, but it is not a valid file".to_string())
         } else {
-            println!("Creating database file at {:?}", location);
-            match fs::File::create(location) {
-                Ok(_) => Ok(String::new()),
-                Err(_) => Err(format!("Not able to create file at {:?}", location)),
-            }
+            // File does not exist yet, consider as empty
+            Ok(String::new())
         }
     }
 
@@ -76,15 +91,12 @@ impl KVFileDatabase {
 impl Drop for KVFileDatabase {
     /// Save updated hashmap to file storage
     fn drop(&mut self) {
-        println!("Dumping records to file storage");
         fs::write(&self.location, self.construct_dump()).unwrap();
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::str::FromStr;
-
     use super::*;
 
     macro_rules! hashmap {
@@ -127,11 +139,11 @@ mod test {
         assert!(KVFileDatabase::parse_content(&bad_seps).is_err());
     }
 
-    #[test]
-    fn creates_new_file_if_not_exists() {
-        let location = PathBuf::from_str("/Users/dima/mylib/Coding/Rust/dumpbuffer/db").unwrap();
-        let kv_db = KVFileDatabase::new(&location);
-        println!("Data: {:?}", kv_db.data);
-        assert!(false);
-    }
+    // #[test]
+    // fn creates_new_file_if_not_exists() {
+    //     let location = PathBuf::from_str("/Users/dima/mylib/Coding/Rust/dumpbuffer/.dumpb").unwrap();
+    //     let kv_db = KVFileDatabase::new(&location);
+    //     println!("Data: {:?}", kv_db.data);
+    //     assert!(false);
+    // }
 }

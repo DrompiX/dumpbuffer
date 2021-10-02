@@ -12,7 +12,7 @@ impl<'a> AddNewRecordService<'a> {
         return AddNewRecordService { record_repository };
     }
 
-    pub fn run(&self, query: &AddNewRecordQuery) {
+    pub fn run(&self, query: &AddNewRecordQuery) -> Result<(), String> {
         let record = Record {
             key: query.key.to_string(),
             value: query.value.to_string(),
@@ -49,14 +49,15 @@ impl<'a> ListRecordsService<'a> {
         return ListRecordsService { record_repository };
     }
 
-    pub fn run(&self, query: &ListRecordsQuery) -> ListResult {
-        let all_records = self.record_repository.all();
-        if query.keys_only {
-            let keys: Vec<String> = all_records.iter().map(|v| v.key.to_string()).collect();
-            ListResult::KeyView(keys)
-        } else {
-            ListResult::RecordView(all_records)
-        }
+    pub fn run(&self, query: &ListRecordsQuery) -> Result<ListResult, String> {
+        self.record_repository.all().and_then(|records| {
+            if query.keys_only {
+                let keys: Vec<String> = records.iter().map(|v| v.key.to_string()).collect();
+                Ok(ListResult::KeyView(keys))
+            } else {
+                Ok(ListResult::RecordView(records))
+            }
+        })
     }
 }
 

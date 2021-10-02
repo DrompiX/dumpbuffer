@@ -3,10 +3,11 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt, Clone, PartialEq)]
 pub enum DumpBufferCLI {
+    #[structopt(setting = structopt::clap::AppSettings::AllowLeadingHyphen)]
     #[structopt(setting = structopt::clap::AppSettings::TrailingVarArg)]
     Add {
         key: String,
-        #[structopt(required = true)]
+        #[structopt(required = true, parse(from_os_str))]
         value: Vec<OsString>,
     },
     Get {
@@ -27,7 +28,7 @@ impl DumpBufferCLI {
                     .iter()
                     .map(|v| {
                         let result_string = v.to_owned().into_string();
-                        result_string.expect(format!("Cant parse value {:?}", v).as_str())
+                        result_string.expect(format!("Cant parse OsString value {:?}", v).as_str())
                     })
                     .collect();
                 Some(vals.join(separator))
