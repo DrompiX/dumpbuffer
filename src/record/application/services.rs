@@ -72,7 +72,7 @@ mod test {
         let record_repository: InMemoryRecordRepository = InMemoryRecordRepository::new();
         let query = AddNewRecordQuery::new("test_key".to_string(), "test_val".to_string());
         let service = AddNewRecordService::new(&record_repository);
-        service.run(&query);
+        service.run(&query).unwrap();
 
         let expected_record = Record::new(&query.key, &query.value);
         match record_repository.get(query.key) {
