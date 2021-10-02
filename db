@@ -1,0 +1,2 @@
+hello|>!<|this -is test -value|<!>|
+docker_mmcv|>!<|docker run rm --it -v /Users/dima/mylib/Coding/Rust/dumpbuffer/volumes:/app/volumes -p 5000:5000 mmcv:latest|<!>|

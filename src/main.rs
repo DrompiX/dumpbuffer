@@ -1,17 +1,25 @@
 mod record;
 mod shared;
 
+use std::{path::PathBuf, str::FromStr};
+
+use record::infrastructure::repositories::KVFileDatabaseRepository;
+use shared::infrastructure::file_db::KVFileDatabase;
 use structopt::StructOpt;
 
 use crate::record::application::{
     queries::{AddNewRecordQuery, GetRecordQuery, ListRecordsQuery},
     services::{AddNewRecordService, GetRecordService, ListRecordsService, ListResult},
 };
-use crate::record::infrastructure::repositories::InMemoryRecordRepository;
+// use crate::record::infrastructure::repositories::InMemoryRecordRepository;
 use crate::shared::infrastructure::cli::DumpBufferCLI;
 
 fn handle(args: &DumpBufferCLI) -> String {
-    let record_repository: InMemoryRecordRepository = InMemoryRecordRepository::new();
+    // let record_repository: InMemoryRecordRepository = InMemoryRecordRepository::new();
+    let location = PathBuf::from_str("/Users/dima/mylib/Coding/Rust/dumpbuffer/db").unwrap();
+    let db = KVFileDatabase::new(&location);
+    let record_repository = KVFileDatabaseRepository::new(&db);
+
     match args {
         DumpBufferCLI::Add { key, value: _ } => {
             let joined_value = args.joined_value(" ").unwrap();

@@ -9,21 +9,40 @@ use regex::Regex;
 
 static KV_SPLIT: &'static str = "|>!<|";
 static LINE_TERM: &'static str = "|<!>|\n";
-static LINE_REGEX: &'static str = r"^(.+)\|>!<\|(.+)\|<!>\|$"; 
+static LINE_REGEX: &'static str = r"^(.+)\|>!<\|(.+)\|<!>\|\n$"; 
 
-struct SimpleFileDatabase {
+pub struct KVFileDatabase {
     location: PathBuf,
     data: RefCell<HashMap<String, String>>,
 }
 
-impl SimpleFileDatabase {
-    pub fn new(location: PathBuf) -> Self {
+impl KVFileDatabase {
+    pub fn new(location: &PathBuf) -> Self {
         let file_content = Self::read_file(&location).unwrap();
         let parsed_data = Self::parse_content(&file_content).unwrap();
-        SimpleFileDatabase {
-            location,
+        KVFileDatabase {
+            location: location.clone(),
             data: RefCell::new(parsed_data),
         }
+    }
+
+    pub fn add(&self, key: &String, value: &String) -> Result<(), String> {
+        let mut storage = self.data.borrow_mut();
+        if storage.contains_key(key) {
+            Err(format!("Key {} already exists", key))
+        } else {
+            storage.insert(key.to_string(), value.to_string());
+            Ok(())
+        }
+    }
+
+    fn construct_dump(&self) -> String {
+        self.data
+            .borrow()
+            .iter()
+            .map(|(k, v)| format!("{}{}{}{}", k, KV_SPLIT, v, LINE_TERM))
+            .collect::<Vec<String>>()
+            .join("")
     }
 
     fn read_file(location: &PathBuf) -> Result<String, String> {
@@ -42,40 +61,30 @@ impl SimpleFileDatabase {
 
     fn parse_content(content: &String) -> Result<HashMap<String, String>, String> {
         let line_regex = Regex::new(LINE_REGEX).unwrap();
-        println!("REGEX: {:?}", line_regex);
-        if content.is_empty() {
-            Ok(HashMap::new())
-        } else {
-            let lines = content.split_inclusive(LINE_SPLIT);
-            lines
-                .map(|line| -> Result<(String, String), String> {
-                    if !line_regex.is_match(line) {
-                        return Err(format!("Line \"{}\" has incompatible format", line))
-                    }
-                    println!("Line before: {}", line);
-                    println!("Line matches? {}", line_regex.is_match(line));
-                    let line_parts = line
-                        .strip_suffix(LINE_SPLIT)
-                        .unwrap()
-                        .split(KV_SPLIT)
-                        .collect::<Vec<&str>>();
-                    // let line_parts = line.split(KV_SPLIT).collect::<Vec<&str>>();
-                    // println!("Line parts: {:?}", line_parts);
-                    // println!("Line ends with line split: {}", line.ends_with(LINE_SPLIT));
-                    if let 2 = line_parts.len() {
-                        // println!("Inside len == 2");
-                        Ok((line_parts[0].to_string(), line_parts[1].to_string()))
-                    } else {
-                        Err(format!("Could not parse line \"{}\"", line))
-                    }
-                })
-                .collect()
-        }
+        let lines = content.split_inclusive(LINE_TERM);
+        lines.map(|line| -> Result<(String, String), String> {
+            match line_regex.captures(line) {
+                Some(groups) if groups.len() == 3 => {
+                    Ok((groups[1].to_string(), groups[2].to_string()))
+                },
+                _ => Err(format!("Line \"{}\" has incompatible format", line)),
+            }
+        }).collect()
+    }
+}
+
+impl Drop for KVFileDatabase {
+    /// Save updated hashmap to file storage
+    fn drop(&mut self) {
+        println!("Dumping records to file storage");
+        fs::write(&self.location, self.construct_dump()).unwrap();
     }
 }
 
 #[cfg(test)]
 mod test {
+    use std::str::FromStr;
+
     use super::*;
 
     macro_rules! hashmap {
@@ -89,32 +98,40 @@ mod test {
     #[test]
     fn content_parsed_correctly_for_empty() {
         assert_eq!(
-            SimpleFileDatabase::parse_content(&"".to_string()),
+            KVFileDatabase::parse_content(&"".to_string()),
             Ok(HashMap::new())
         );
     }
 
     #[test]
     fn correctly_parses_one_line() {
-        let line = format!("hello{}this -is test -value{}", KV_SPLIT, LINE_SPLIT);
+        let line = format!("hello{}this -is test -value{}", KV_SPLIT, LINE_TERM);
         assert_eq!(
-            SimpleFileDatabase::parse_content(&line),
+            KVFileDatabase::parse_content(&line),
             Ok(hashmap!["hello".to_string() => "this -is test -value".to_string()])
         );
     }
 
     #[test]
     fn fails_for_incorrect_line() {
-        let bad_kv_sep = format!("hello{}this -is test -value{}", "<haha>", LINE_SPLIT);
+        let bad_kv_sep = format!("hello{}this -is test -value{}", "<haha>", LINE_TERM);
         let bad_line_sep = format!("key{}test-value -here{}", KV_SPLIT, "!line_split!");
         let bad_seps = format!("world{}test-value here<>{}", "|kek|", "!line_split!");
 
-        println!("{:?}", SimpleFileDatabase::parse_content(&bad_kv_sep));
-        println!("{:?}", SimpleFileDatabase::parse_content(&bad_line_sep));
-        println!("{:?}", SimpleFileDatabase::parse_content(&bad_seps));
+        println!("{:?}", KVFileDatabase::parse_content(&bad_kv_sep));
+        println!("{:?}", KVFileDatabase::parse_content(&bad_line_sep));
+        println!("{:?}", KVFileDatabase::parse_content(&bad_seps));
 
-        assert!(SimpleFileDatabase::parse_content(&bad_kv_sep).is_err());
-        assert!(SimpleFileDatabase::parse_content(&bad_line_sep).is_err());
-        assert!(SimpleFileDatabase::parse_content(&bad_seps).is_err());
+        assert!(KVFileDatabase::parse_content(&bad_kv_sep).is_err());
+        assert!(KVFileDatabase::parse_content(&bad_line_sep).is_err());
+        assert!(KVFileDatabase::parse_content(&bad_seps).is_err());
+    }
+
+    #[test]
+    fn creates_new_file_if_not_exists() {
+        let location = PathBuf::from_str("/Users/dima/mylib/Coding/Rust/dumpbuffer/db").unwrap();
+        let kv_db = KVFileDatabase::new(&location);
+        println!("Data: {:?}", kv_db.data);
+        assert!(false);
     }
 }
