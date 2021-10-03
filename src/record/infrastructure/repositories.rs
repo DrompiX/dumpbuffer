@@ -46,18 +46,18 @@ impl RecordRepository for InMemoryRecordRepository {
 
 ////////////////////////////////////////////
 /// Repository to store records in file in Key-Value format
-pub struct KVFileDatabaseRepository<'a> {
+pub struct KVFileDatabaseRepository {
     /// Underlying file storage implementation
-    storage: &'a KVFileDatabase,
+    storage: KVFileDatabase,
 }
 
-impl<'a> KVFileDatabaseRepository<'a> {
-    pub fn new(storage: &'a KVFileDatabase) -> Self {
+impl KVFileDatabaseRepository {
+    pub fn new(storage: KVFileDatabase) -> Self {
         KVFileDatabaseRepository { storage }
     }
 }
 
-impl<'a> RecordRepository for KVFileDatabaseRepository<'a> {
+impl RecordRepository for KVFileDatabaseRepository {
     fn add(&self, record: Record) -> Result<(), String> {
         self.storage.add(&record.key, &record.value)
     }
