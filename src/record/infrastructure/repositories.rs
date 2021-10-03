@@ -37,10 +37,21 @@ impl RecordRepository for InMemoryRecordRepository {
         }
     }
 
+    fn remove(&self, key: String) -> Result<(), String> {
+        match self.storage.borrow_mut().remove(&key) {
+            Some(_) => Ok(()),
+            None => Err("Record could not be removed".to_string()),
+        }
+    }
+
     fn all(&self) -> Result<Vec<Record>, String> {
         Ok(self.storage.borrow().iter()
             .map(|(k, v)| Record::new(k, v))
             .collect())
+    }
+
+    fn clear(&self) -> Result<(), String> {
+        Ok(self.storage.borrow_mut().clear())
     }
 }
 
@@ -66,9 +77,17 @@ impl RecordRepository for KVFileDatabaseRepository {
         self.storage.get(&key).and_then(|v| Ok(Record::new(&key, &v)))
     }
 
+    fn remove(&self, key: String) -> Result<(), String> {
+        self.storage.remove(&key)
+    }
+
     fn all(&self) -> Result<Vec<Record>, String> {
         self.storage.items().and_then(|items| -> Result<Vec<Record>, String> {
             Ok(items.iter().map(|(k, v)| Record::new(&k, &v)).collect())
         })
+    }
+
+    fn clear(&self) -> Result<(), String> {
+        Ok(self.storage.clear())
     }
 }

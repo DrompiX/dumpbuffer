@@ -2,6 +2,7 @@ mod record;
 mod shared;
 
 use dirs;
+use record::application::{queries::DeleteRecordQuery, services::ClearRecordsService};
 use structopt::StructOpt;
 
 use crate::record::application::{
@@ -48,6 +49,11 @@ fn handle(args: &DumpBufferCLI, repo: Box<dyn RecordRepository>) -> Result<Strin
                 }
                 Err(e) => Err(e),
             }
+        },
+        DumpBufferCLI::Delete { key, all } => {
+            let query = DeleteRecordQuery::new(key, all.clone());
+            let service = ClearRecordsService::new(&repo);
+            service.run(&query)
         }
     }
 }

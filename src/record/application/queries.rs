@@ -30,3 +30,15 @@ impl ListRecordsQuery {
         return ListRecordsQuery { keys_only };
     }
 }
+
+#[derive(Debug)]
+pub struct DeleteRecordQuery {
+    pub key: Option<String>,
+    pub all: bool,
+}
+
+impl DeleteRecordQuery {
+    pub fn new(key: &Option<String>, all: bool) -> DeleteRecordQuery {
+        return DeleteRecordQuery { key: key.to_owned(), all };
+    }
+}

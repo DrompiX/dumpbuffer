@@ -52,6 +52,17 @@ impl KVFileDatabase {
         )
     }
 
+    pub fn remove(&self, key: &String) -> Result<(), String> {
+        match self.data.borrow_mut().remove(key) {
+            Some(_) => Ok(()),
+            None => Err(format!("Key \"{}\" does not exist", key)),
+        }
+    }
+
+    pub fn clear(&self) {
+        self.data.borrow_mut().clear()
+    }
+
     fn construct_dump(&self) -> String {
         self.data
             .borrow()
