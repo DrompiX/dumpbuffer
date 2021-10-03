@@ -29,7 +29,7 @@ fn handle(args: &DumpBufferCLI, repo: Box<dyn RecordRepository>) -> Result<Strin
             let service = AddNewRecordService::new(&repo);
             service
                 .run(&query)
-                .and_then(|_| Ok(format!("Successfully added new value with key {}", key)))
+                .and_then(|_| Ok(format!("Successfully added new value with key \"{}\"", key)))
         }
         DumpBufferCLI::Get { key } => {
             let query = GetRecordQuery::new(key.to_string());
