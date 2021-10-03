@@ -5,8 +5,12 @@ pub trait RecordRepository {
     fn add(&self, record: Record) -> Result<(), String>;
     /// Get record by key
     fn get(&self, key: String) -> Result<Record, String>;
+    /// Remove record by key
+    fn remove(&self, key: String) -> Result<(), String>;
     /// Get all records from the data storage
     fn all(&self) -> Result<Vec<Record>, String>;
+    /// Clear all records from storage
+    fn clear(&self) -> Result<(), String>;
 }
 
 impl<T> RecordRepository for Box<T> where T: RecordRepository + ?Sized {
@@ -18,7 +22,15 @@ impl<T> RecordRepository for Box<T> where T: RecordRepository + ?Sized {
         (**self).get(key)
     }
 
+    fn remove(&self, key: String) -> Result<(), String> {
+        (**self).remove(key)
+    }
+
     fn all(&self) -> Result<Vec<Record>, String> {
         (**self).all()
+    }
+
+    fn clear(&self) -> Result<(), String> {
+        (**self).clear()
     }
 }

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use super::queries::{AddNewRecordQuery, GetRecordQuery, ListRecordsQuery};
+use super::queries::{AddNewRecordQuery, DeleteRecordQuery, GetRecordQuery, ListRecordsQuery};
 use crate::record::domain::{entities::Record, repositories::RecordRepository};
 
 pub struct AddNewRecordService<'a> {
@@ -60,6 +60,31 @@ impl<'a> ListRecordsService<'a> {
         })
     }
 }
+
+pub struct ClearRecordsService <'a> {
+    record_repository: &'a dyn RecordRepository,
+}
+
+impl<'a> ClearRecordsService<'a> {
+    pub fn new(record_repository: &dyn RecordRepository) -> ClearRecordsService {
+        return ClearRecordsService { record_repository };
+    }
+
+    pub fn run(&self, query: &DeleteRecordQuery) -> Result<String, String> {
+        if query.all {
+            self.record_repository
+                .clear()
+                .and_then(|_| Ok("All records were removed!".to_string()))
+        } else if let Some(key) = &query.key {
+            self.record_repository
+                .remove(key.to_string())
+                .and_then(|_| Ok(format!("Removed record with key \"{}\"", key)))
+        } else {
+            Err(format!("Query should have at least one argument specified, got {:?}", query))
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod test {

@@ -5,18 +5,31 @@ use structopt::StructOpt;
 pub enum DumpBufferCLI {
     #[structopt(setting = structopt::clap::AppSettings::AllowLeadingHyphen)]
     #[structopt(setting = structopt::clap::AppSettings::TrailingVarArg)]
+    /// Add new record to the storage
     Add {
         key: String,
         #[structopt(required = true, parse(from_os_str))]
         value: Vec<OsString>,
     },
+    /// Get record with specific key
     Get {
         key: String,
     },
+    /// List all available records
     List {
         #[structopt(long)]
         keys_only: bool,
     },
+    /// Delete record from storage by key or all records at once
+    #[structopt(name = "rm")]
+    Delete {
+        #[structopt(required_unless_one(&["all"]))]
+        /// Delete record by key
+        key: Option<String>,
+        #[structopt(long, conflicts_with = "key")]
+        /// Delete all records
+        all: bool,
+    }
 }
 
 impl DumpBufferCLI {
