@@ -9,7 +9,7 @@ use regex::Regex;
 
 static KV_SPLIT: &'static str = "|>!<|";
 static LINE_TERM: &'static str = "|<!>|\n";
-static LINE_REGEX: &'static str = r"^(.+)\|>!<\|(.+)\|<!>\|\n$"; 
+static LINE_REGEX: &'static str = r"^(.+)\|>!<\|(?s)(.+)\|<!>\|\n$"; 
 
 pub struct KVFileDatabase {
     location: PathBuf,
