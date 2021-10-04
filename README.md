@@ -1,17 +1,26 @@
 # DumpBuffer
 DumpBuffer is a place where you can quickly dump some commands/thoughts in terminal
 
-## About
+## Table of contents
+1. [About](#about)
+2. [Install](#install)
+3. [Usage](#usage)
+    * [Add record](#add_record)
+    * [Get record](#get_record)
+    * [List records](#list_records)
+    * [Remove record(s)](#remove_records)
+
+## About <a name="about"></a>
 DumpBuffer is a command line based application, whose sole purpose is to store records for future use.
 
 DumpBuffer is fully written in Rust.
 
-## Install
+## Install <a name="install"></a>
 WIP
 
-## Usage
+## Usage <a name="usage"></a>
 
-### Add a record to the DumpBuffer
+### Add a record to the DumpBuffer <a name="add_record"></a>
 
 **Command**
 ```bash
@@ -35,7 +44,7 @@ Successfully added new value with key "some_fancy_key"
 [ERROR]: Key "some_fancy_key" already exists
 ```
 
-### Get record from DumpBuffer by key
+### Get record from DumpBuffer by key <a name="get_record"></a>
 
 **Command**
 ```bash
@@ -50,7 +59,7 @@ docker run --rm -it -p 8080:8080 best_app:latest
 [ERROR]: Key "some_fancy_key" does not exist
 ```
 
-### List records from DumpBuffer
+### List records from DumpBuffer <a name="list_records"></a>
 You can add `--keys-only` to show only key part of records.
 
 **Command**
@@ -77,7 +86,7 @@ $ dumpb list --keys-only
 ]
 ```
 
-### Remove records from DumpBuffer
+### Remove records from DumpBuffer <a name="remove_records"></a>
 You can add `--all` to erase all records completely. Either `key` or `--all` has to be specified.
 
 **Command**
