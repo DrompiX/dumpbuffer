@@ -78,10 +78,11 @@ dependencies = [
 
 [[package]]
 name = "dumpb"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dirs",
  "regex",
+ "shlex",
  "structopt",
  "subprocess",
 ]
@@ -210,6 +211,12 @@ name = "regex-syntax"
 version = "0.6.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+
+[[package]]
+name = "shlex"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
 
 [[package]]
 name = "strsim"

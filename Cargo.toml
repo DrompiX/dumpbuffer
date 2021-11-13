@@ -1,6 +1,6 @@
 [package]
 name = "dumpb"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Dima T <mrlocky98@gmail.com>"]
 edition = "2018"
 
@@ -11,3 +11,4 @@ structopt = { version = "0.3.23" }
 regex = { version = "1.5.4" }
 dirs = { version = "4.0.0" }
 subprocess = { version = "0.2.8" }
+shlex = { version = "1.1.0" }

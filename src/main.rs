@@ -4,6 +4,7 @@ mod shared;
 use subprocess::Exec;
 
 use dirs;
+use shlex;
 use structopt::StructOpt;
 
 use crate::record::application::{
@@ -25,8 +26,8 @@ fn setup_repository() -> Result<Box<dyn RecordRepository>, String> {
 }
 
 fn execute_command(command: String) -> Result<(), String> {
-    let cmd_parts: Vec<&str> = command.split(' ').collect();
-    Exec::cmd(cmd_parts[0])
+    let cmd_parts: Vec<String> = shlex::split(&command).ok_or("Could not split command")?;
+    Exec::cmd(cmd_parts[0].to_string())
         .args(&cmd_parts[1..])
         .join()
         .expect("Failed to execute command");
@@ -70,7 +71,7 @@ fn handle(args: &DumpBufferCLI, repo: Box<dyn RecordRepository>) -> Result<Strin
         DumpBufferCLI::Exec { key } => {
             handle(&DumpBufferCLI::Get{ key: key.to_string() }, repo)
                 .and_then(|val| execute_command(val))
-                .and_then(|_| Ok("Command completed".to_string()))
+                .and_then(|_| Ok("".to_string()))
         }
     }
 }

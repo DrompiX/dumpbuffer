@@ -15,6 +15,7 @@ pub enum DumpBufferCLI {
     Get {
         key: String,
     },
+    /// Execute record with specific key
     Exec {
         key: String,
     },
