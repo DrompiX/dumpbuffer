@@ -1,13 +1,16 @@
 mod record;
 mod shared;
 
+use subprocess::Exec;
+
 use dirs;
-use record::application::{queries::DeleteRecordQuery, services::ClearRecordsService};
 use structopt::StructOpt;
 
 use crate::record::application::{
-    queries::{AddNewRecordQuery, GetRecordQuery, ListRecordsQuery},
-    services::{AddNewRecordService, GetRecordService, ListRecordsService, ListResult},
+    queries::{AddNewRecordQuery, DeleteRecordQuery, GetRecordQuery, ListRecordsQuery},
+    services::{
+        AddNewRecordService, ClearRecordsService, GetRecordService, ListRecordsService, ListResult,
+    },
 };
 use crate::record::domain::repositories::RecordRepository;
 use crate::record::infrastructure::repositories::KVFileDatabaseRepository;
@@ -20,6 +23,15 @@ fn setup_repository() -> Result<Box<dyn RecordRepository>, String> {
     let db = KVFileDatabase::new(&db_path)?;
     Ok(Box::new(KVFileDatabaseRepository::new(db)))
 }
+
+fn execute_command(command: String) -> Result<(), String> {
+    let cmd_parts: Vec<&str> = command.split(' ').collect();
+    Exec::cmd(cmd_parts[0])
+        .args(&cmd_parts[1..])
+        .join()
+        .expect("Failed to execute command");
+    Ok(())
+} 
 
 fn handle(args: &DumpBufferCLI, repo: Box<dyn RecordRepository>) -> Result<String, String> {
     match args {
@@ -49,11 +61,16 @@ fn handle(args: &DumpBufferCLI, repo: Box<dyn RecordRepository>) -> Result<Strin
                 }
                 Err(e) => Err(e),
             }
-        },
+        }
         DumpBufferCLI::Delete { key, all } => {
             let query = DeleteRecordQuery::new(key, all.clone());
             let service = ClearRecordsService::new(&repo);
             service.run(&query)
+        }
+        DumpBufferCLI::Exec { key } => {
+            handle(&DumpBufferCLI::Get{ key: key.to_string() }, repo)
+                .and_then(|val| execute_command(val))
+                .and_then(|_| Ok("Command completed".to_string()))
         }
     }
 }

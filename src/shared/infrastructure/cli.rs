@@ -15,6 +15,9 @@ pub enum DumpBufferCLI {
     Get {
         key: String,
     },
+    Exec {
+        key: String,
+    },
     /// List all available records
     List {
         #[structopt(long)]
